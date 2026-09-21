@@ -1,0 +1,230 @@
+##Code for KSP Calculations
+#Libraries and constants
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+G = 6.674e-11
+pi = 3.141592653589793
+
+# NOTE!!!! All values have units of kilograms, meters, and seconds, so double-check your units!
+
+#Basic Planetary Information
+Radius_Mun = 200000
+Mass_Mun = 9.75e20
+Radius_Minmus = 60000
+Mass_Minmus = 2.646e19
+Mass_Kerbin = 5.295e22
+Radius_Kerbin = 600000
+Radius_Kerbin_Atmo_h = 70000
+Radius_Duna = 320000
+Mass_Duna = 4.515e21
+Duna_Atmo_h = 50000
+
+
+#Planetary Transfer Information
+Radius_Duna_Orbit = 20e9
+Mass_Kerbol = 1.75e28
+Radius_Kerbin_Orbit = 13e9
+Radius_Eve_Orbit = 0
+
+
+
+######DV Values#####
+#Required to orbit Kerbin @ 100 km: 4000 m/s
+#Required to orbit Mun @ 10km: 1000 m/s
+#Required to orbit Duna @ 60 km: 2300 m/s
+
+#Beyond Home Values
+Mass_Rhode = 2.32e22
+Radius_Rhode = 450*1000
+Rhode_Atmo_h = 50*1000
+Radius_Armstrong = 20*1000
+Mass_Armstrong = 2.645e18
+Radius_Armstrong_Orbit = 7611 * 1000
+Mass_Ash = 2.755e21
+Radius_Ash = 250*1000
+Radius_Ash_Orbit = 38656*1000
+
+
+Radius_Rhode_Orbit = 27883359719
+Radius_Hydrus_Orbit = 21611076700
+Mass_Destiny = 1.75e28
+Mass_Fate = 1.16e28
+Mass_BH_Stars = Mass_Destiny + Mass_Fate
+
+
+
+
+#Functions
+def time_seconds_converter(time):
+    years, days, hours, minutes, seconds = time
+    days = days + (years * 426)
+    hours = hours + (days * 6)
+    minutes = minutes + (hours * 60)
+    seconds = seconds + (minutes * 60)
+    print(f'Time_to_seconds: {seconds}')
+    return seconds
+
+def orbital_velocity_predictor(radius_orbital,mass_of_body):
+    orbital_velocity = ((G*mass_of_body)/radius_orbital)**0.5
+    print(f'Orbital velocity: {orbital_velocity}')
+    return orbital_velocity
+
+def orbital_radius(orbital_velocity, period):
+    radius_orbital = (orbital_velocity*period)/(2*math.pi)
+    print(f'Orbital radius: {radius_orbital}')
+    return radius_orbital
+
+def mass_of_body(orbital_velocity, radius_orbital):
+    calculated_mass = ((radius_orbital*(orbital_velocity**2))/G)
+    print(f'Mass of body: {calculated_mass}')
+    return calculated_mass
+
+def gravitational_acceleration(radius_orbital,mass_of_body):
+    acceleration_gravitational = (G*mass_of_body)/(radius_orbital*radius_orbital)
+    print(f'Gravitational acceleration at {radius_orbital}m: {acceleration_gravitational}')
+    return acceleration_gravitational
+
+def low_height_dv(surface_g,target_height):
+    delta_v_launch = math.sqrt(2 * surface_g * target_height)
+    print(f'Launch_dv: {delta_v_launch}')
+    return delta_v_launch
+
+def calculate_launch_dv_high_altitude(M, Ro, Rf):
+    if Ro <= 0 or Rf <= 0:
+        return 0.0
+    r_initial = Ro
+    r_final = Rf
+    delta_v_squared = 2 * G * M * ((r_final - r_initial) / (r_initial * r_final))
+    dv_launch = math.sqrt(delta_v_squared)
+    print(f"Launch_dv_high: {dv_launch}")
+    return dv_launch
+
+def dv_to_raise_apoapsis_true(M, R, h_current, h_target, v_current=0):
+    # GM (Gravitational Parameter)
+    mu = 6.674e-11 * M
+
+    # Radii from center of mass
+    rp = R + h_current
+    ra = R + h_target
+
+    # Semi-major axis of the new transfer ellipse
+    a = (rp + ra) / 2
+
+    # Vis-viva: Velocity needed at rp to have an apoapsis at ra
+    v_needed = math.sqrt(mu * (2/rp - 1/a))
+
+    # The dv is the difference between needed and what you already have
+    dv = v_needed - v_current
+
+    print(f"DV required for Apoapsis at {h_target}m: {dv:.2f} m/s")
+    return dv
+
+def hohmann_transfer_dv(r1, r2, mass_of_body):
+    a_transfer = (r1 + r2) / 2
+    v1_circular = math.sqrt(G*mass_of_body/ r1)
+    v2_circular = math.sqrt(G*mass_of_body/ r2)
+    v_periapsis_transfer = math.sqrt(G*mass_of_body* ((2 / r1) - (1 / a_transfer)))
+    v_apoapsis_transfer = math.sqrt(G*mass_of_body * ((2 / r2) - (1 / a_transfer)))
+    delta_v1 = v_periapsis_transfer - v1_circular
+    delta_v2 = v2_circular - v_apoapsis_transfer
+    period_transfer = 2 * math.pi * math.sqrt(a_transfer**3 / (G*mass_of_body))
+    time_of_flight = period_transfer / 2
+    print(f"Hohmann transfer:\ndv1: {delta_v1}\ndv2: {delta_v2}")
+
+def geostationary_orbit_r(mass_of_body, body_rotational_time, radius_of_body_km):
+    r_cubed = (G * mass_of_body * (body_rotational_time**2)) / (4 * math.pi**2)
+    r = r_cubed**(1/3)
+    r_km = r / 1000
+    height = r_km - radius_of_body_km
+    print(f"Geostationary height of body in km: {height}")
+    return r_km
+
+def landing_dv(height_r, ground_r, mass_of_body):
+    dv_to_land = math.sqrt(2*G*mass_of_body*((1/ground_r)-(1/(height_r))))
+    print(f"Approximate space-to-crash dv:{dv_to_land}")
+    return dv_to_land
+
+def surface_gravity_calculator(radius,mass):
+    surface_g = (G * mass)/(radius**2)
+    print(f"Surface gravity g: {surface_g}")
+    return surface_g
+
+def calculate_phase_angle(r1, r2, mass_of_central_body):
+    a_transfer = (r1 + r2) / 2
+    period_transfer = 2 * math.pi * math.sqrt(a_transfer**3 / (G * mass_of_central_body))
+    time_of_flight = period_transfer / 2
+    angular_velocity_target = math.sqrt((G * mass_of_central_body) / r2**3)
+    angle_target_moves = angular_velocity_target * time_of_flight
+    phase_angle_rad = math.pi - angle_target_moves
+    phase_angle_deg = math.degrees(phase_angle_rad)
+    print(f"--- Transfer Calculation ---")
+    print(f"Time of Flight: {time_of_flight / 60:.2f} minutes")
+    print(f"Required Phase Angle: {phase_angle_deg:.2f} degrees")
+    return phase_angle_deg
+
+def sma_from_altitudes(apoapsis_alt, periapsis_alt, body_radius):
+    r_ap = apoapsis_alt + body_radius
+    r_pe = periapsis_alt + body_radius
+    a = (r_ap + r_pe) / 2
+    print(f"Semi-Major Axis (Geometry): {a} m")
+    return a
+
+def visualize_orbital_velocity(mass_of_body, min_alt, max_alt):
+    # Generate altitudes from 70km (KSP atmosphere edge) to 1000km
+    altitudes = np.linspace(min_alt, max_alt, 100)
+    velocities = [orbital_velocity_predictor(600000 + a, mass_of_body) for a in altitudes]
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(altitudes / 1000, velocities, color='tab:blue', linewidth=2)
+    plt.title("Orbital Velocity vs. Altitude (Kerbin)")
+    plt.xlabel("Altitude (km)")
+    plt.ylabel("Velocity (m/s)")
+    plt.grid(True)
+    plt.show() # This will appear in Spyder's "Plots" pane
+
+
+####  Run Functions Here
+#(To activate a function, remove the (#) signs and to turn the function off, put the (#) back)
+#Also, use the planetary values from the top of the file for the functions, or your own numbers
+#Remember, everything is in kilograms, meters, and seconds
+
+
+
+#visualize_orbital_velocity(5.295e22, 70000, 1000000)
+
+#period_seconds = time_seconds_converter([0,0,6,0,0])
+
+#print(f"Period in seconds:{period_seconds}")
+
+#geostationary_orbit_r(5.295e22, 21600, 600)
+
+hohmann_transfer_dv(Radius_Rhode_Orbit,(Radius_Hydrus_Orbit), Mass_BH_Stars)
+
+#landing_dv((200+277)*1000, 200*1000, 9.75e20)
+
+#gravitational_acceleration(60*1000,2.646e19)
+
+#low_height_dv(9.81, 500)
+
+dv_launch = calculate_launch_dv_high_altitude(Mass_Ash, (Radius_Ash), (Radius_Ash + 10000))
+
+print(dv_launch)
+
+A = orbital_velocity_predictor((Radius_Ash) + (0) + (10*1000), Mass_Ash)
+
+print(A)
+
+print(f"total:{A+dv_launch}")
+
+#sma_from_altitudes(apoapsis_alt, periapsis_alt, body_radius)
+
+#calculate_phase_angle((700*1000), 10000*1000, 5.295e22)
+
+#print(f"Ground_to_orbit dv:{dv_launch + orbital_dv}")
+
+#orbital_radius(0,0)
+
+#mass_of_body(2300,700000)
+
+#dv_to_raise_apoapsis_true(9.75e20, Radius_Mun, Radius_Mun, Radius_Mun+10000)
