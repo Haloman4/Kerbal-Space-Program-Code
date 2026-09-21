@@ -185,46 +185,52 @@ def visualize_orbital_velocity(mass_of_body, min_alt, max_alt):
 
 
 ####  Run Functions Here
-#(To activate a function, remove the (#) signs and to turn the function off, put the (#) back)
-#Also, use the planetary values from the top of the file for the functions, or your own numbers
-#Remember, everything is in kilograms, meters, and seconds
+# (To activate a function, remove the (#) signs and to turn the function off, put the (#) back)
+# Also, pay attention to the guides above each function: they tell you what to put in the parenthesis!
+# Remember, everything is in kilograms, meters, and seconds
 
 
 
+# (Mass, min_altitude, max_altitude). Also, this function is weird and prints out a bunch of stuff:Use with caution!
 #visualize_orbital_velocity(5.295e22, 70000, 1000000)
 
+# ([years, days, hours, minutes, seconds])
 #period_seconds = time_seconds_converter([0,0,6,0,0])
-
 #print(f"Period in seconds:{period_seconds}")
 
+# (Mass, Rotation time of body, radius of planet in kilometers)
 #geostationary_orbit_r(5.295e22, 21600, 600)
 
+# (Initial radius, Final Radius, Mass of Parent Body)
 hohmann_transfer_dv(Radius_Rhode_Orbit,(Radius_Hydrus_Orbit), Mass_BH_Stars)
 
-#landing_dv((200+277)*1000, 200*1000, 9.75e20)
+# (Desired height, radius of the body, mass of the body)
+#landing_dv(100 , 50, 9.75e20)
 
+# (radius of the body, mass of the body)
 #gravitational_acceleration(60*1000,2.646e19)
 
-#low_height_dv(9.81, 500)
+# (acceleration from gravity, target height)
+#low_height_dv(1, 100)
 
+# (Mass of body, radius of body, desired radius(add desired heigh to the radius of the body))
 dv_launch = calculate_launch_dv_high_altitude(Mass_Ash, (Radius_Ash), (Radius_Ash + 10000))
 
-print(dv_launch)
+#This just adds orbital velocity to the launch dv, if you want to get from the ground to orbit at some height
+#A = orbital_velocity_predictor((Radius_Ash) + (0) + (10*1000), Mass_Ash)
+#print(f"total:{A+dv_launch}")
 
-A = orbital_velocity_predictor((Radius_Ash) + (0) + (10*1000), Mass_Ash)
-
-print(A)
-
-print(f"total:{A+dv_launch}")
-
+# (apoapsis, periapsis, radius of body)
 #sma_from_altitudes(apoapsis_alt, periapsis_alt, body_radius)
 
+# (R1, R2, mass of parent body)
 #calculate_phase_angle((700*1000), 10000*1000, 5.295e22)
 
-#print(f"Ground_to_orbit dv:{dv_launch + orbital_dv}")
-
+#(orbital velocity, period of the orbit)
 #orbital_radius(0,0)
 
+# (orbital velocity, radius of orbit)
 #mass_of_body(2300,700000)
 
+# (Mass, radius, current height, target height, v_currrent)
 #dv_to_raise_apoapsis_true(9.75e20, Radius_Mun, Radius_Mun, Radius_Mun+10000)
