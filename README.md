@@ -1,8 +1,8 @@
 # Kerbal-Space-Program-Code-A-
 Basic Code for doing Rocket Science calculations, to make Kerbal Space Program much easier to play
 
-This Massive, lengthy code is meant to make Kerbal Space Program much easier to play.
-By running mathematics, a player can figure out how much delta-V to give their rocket if they want to go to a desired location.
+This code is meant to make Kerbal Space Program much easier to play by removing the guessing from rocket design.
+By running this code in Python, a player can figure out how much delta-V to give their rocket if they want to go to a desired location.
 It has a variety of functions in it, but the most important are these: 
 - hohmann_transfer_dv(gives the dV needed to change a circular orbit's size)
 - orbital_velocity_predictor(gives how much velocity is needed to have a circular orbit at a radius r)
