@@ -1,4 +1,4 @@
-# Kerbal-Space-Program-Code-A-
+# Kerbal-Space-Program-Code
 Basic Code for doing Rocket Science calculations, to make Kerbal Space Program much easier to play
 
 This code is meant to make Kerbal Space Program much easier to play by removing the guessing from rocket design.
